@@ -1,0 +1,1890 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>決選投票比例代表制 (RPR) シミュレーター - アルゴン研究所</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
+
+<style>
+  :root {
+    --bg-color: #f2f0eb;             
+    --panel-bg: #f2f0eb;            
+    --box-bg: #f9f8f5;              
+    --border-color: #a8a396;        
+    --border-dark: #6e695d;          
+    --text-primary: #2c2d2b;        
+    --text-muted: #575650;         
+    
+    --header-slate: #3c4f5e;        
+    --header-sage: #4a5d4e;         
+    --accent-terracotta: #8c5a4c;   
+    --accent-gold: #8c784c;         
+  }
+
+  body {
+    background-color: var(--bg-color);
+    color: var(--text-primary);
+    font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", "メイリオ", "ＭＳ Ｐゴシック", sans-serif;
+    font-size: 13px;
+    margin: 15px auto;
+    padding: 0;
+    line-height: 1.5;
+  }
+
+  #main-container {
+    width: 96%;
+    max-width: 1060px;
+    margin: 0 auto;
+    background-color: var(--bg-color);
+    border: none;
+    padding: 16px;
+    box-shadow: none;
+  }
+
+  .academic-title {
+    background-color: var(--header-slate);
+    color: #ffffff;
+    padding: 8px 12px;
+    font-size: 16px;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+    border: 1px solid #23303b;
+    margin-bottom: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  fieldset.classic-fieldset {
+    border: 2px solid var(--border-color);
+    background-color: var(--box-bg);
+    padding: 12px 14px;
+    margin-bottom: 16px;
+    border-radius: 0px;
+  }
+
+  legend.classic-legend {
+    font-weight: bold;
+    color: var(--header-slate);
+    padding: 2px 8px;
+    background-color: #ffffff;
+    border: 1px solid var(--border-color);
+    font-size: 13px;
+  }
+
+  table.retro-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 6px;
+    margin-bottom: 10px;
+    font-size: 12px;
+    background-color: #ffffff;
+    border: 1px solid var(--border-color);
+  }
+
+  table.retro-table th {
+    background-color: var(--header-sage);
+    color: #ffffff;
+    padding: 6px 8px;
+    text-align: center;
+    border: 1px solid #364439;
+    font-weight: normal;
+  }
+
+  table.retro-table td {
+    padding: 5px 8px;
+    border: 1px solid #d4d0c5;
+  }
+
+  table.retro-table tr:nth-child(even) {
+    background-color: #f4f2ed;
+  }
+
+  table.retro-table tr.highlight {
+    background-color: #e8eee8;
+  }
+
+  /* ボタンデザイン */
+  button.classic-btn {
+    background-color: #e2ded5;
+    color: var(--text-primary);
+    border: 2px outset #ffffff;
+    padding: 4px 12px;
+    font-size: 12px;
+    font-family: inherit;
+    cursor: pointer;
+  }
+
+  button.classic-btn:hover {
+    background-color: #d6d1c5;
+  }
+
+  button.classic-btn:active {
+    border: 2px inset #ffffff;
+    background-color: #c8c3b7;
+  }
+
+  button.classic-btn-primary {
+    background-color: var(--header-slate);
+    color: #ffffff;
+    border: 2px outset #586d7e;
+    font-weight: bold;
+  }
+
+  button.classic-btn-primary:hover {
+    background-color: #2e3e4a;
+  }
+
+  button.classic-btn-action {
+    background-color: var(--header-sage);
+    color: #ffffff;
+    border: 2px outset #637a68;
+    font-weight: bold;
+  }
+
+  button.classic-btn-action:hover {
+    background-color: #364439;
+  }
+
+  /* クラシカル調カスタムスライダー */
+  input[type="range"].classic-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 92%;
+    height: 6px;
+    background: #d8d4c9;
+    border: 1px solid var(--border-dark);
+    outline: none;
+    border-radius: 0px;
+    margin: 6px 0;
+  }
+
+  input[type="range"].classic-slider::-webkit-slider-runnable-track {
+    width: 100%;
+    height: 6px;
+    background: #d8d4c9;
+    border: 1px inset #8a8578;
+  }
+
+  input[type="range"].classic-slider::-moz-range-track {
+    width: 100%;
+    height: 6px;
+    background: #d8d4c9;
+    border: 1px inset #8a8578;
+  }
+
+  input[type="range"].classic-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 20px;
+    background: var(--header-slate);
+    border: 2px outset #738a9c;
+    cursor: ew-resize;
+    margin-top: -8px;
+    box-shadow: 1px 1px 2px rgba(0,0,0,0.25);
+  }
+
+  input[type="range"].classic-slider::-webkit-slider-thumb:hover {
+    background: #2e3e4a;
+  }
+
+  input[type="range"].classic-slider::-moz-range-thumb {
+    width: 16px;
+    height: 20px;
+    background: var(--header-slate);
+    border: 2px outset #738a9c;
+    cursor: ew-resize;
+    border-radius: 0px;
+    box-shadow: 1px 1px 2px rgba(0,0,0,0.25);
+  }
+
+  input[type="range"].classic-slider::-moz-range-thumb:hover {
+    background: #2e3e4a;
+  }
+
+  /* タブ切替ボタン */
+  .tab-group {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 10px;
+  }
+
+  .tab-btn {
+    background-color: #d8d4c9;
+    border: 1px solid var(--border-color);
+    padding: 5px 12px;
+    cursor: pointer;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  .tab-btn.active {
+    background-color: var(--header-sage);
+    color: #ffffff;
+    font-weight: bold;
+    border-color: #364439;
+  }
+
+  /* フォーム要素 */
+  input[type="text"], input[type="number"], select {
+    background-color: #ffffff;
+    border: 1px solid var(--border-dark);
+    padding: 3px 5px;
+    font-size: 12px;
+  }
+
+  /* 計算ログ表示エリア */
+  .formula-log {
+    background-color: #f2f0ea;
+    border: 1px solid var(--border-dark);
+    padding: 10px;
+    font-family: "Courier New", "Consolas", monospace;
+    font-size: 11.5px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    max-height: 280px;
+    overflow-y: auto;
+    color: #222;
+  }
+
+  /* グラフコンテナ */
+  .chart-wrapper {
+    position: relative;
+    height: 340px;
+    width: 100%;
+    margin: 10px auto;
+  }
+
+  .notice-tag {
+    color: var(--accent-terracotta);
+    font-weight: bold;
+  }
+
+  .footer-text {
+    text-align: center;
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 20px;
+    border-top: 1px solid var(--border-color);
+    padding-top: 10px;
+  }
+
+  .diff-plus {
+    color: #8c2a2a;
+    font-weight: bold;
+  }
+  .diff-minus {
+    color: #2a5a8c;
+    font-weight: bold;
+  }
+  .diff-zero {
+    color: #666666;
+  }
+</style>
+</head>
+<body>
+
+<div id="main-container">
+
+  <!-- ヘッダー -->
+  <div class="academic-title">
+    <span>決選投票比例代表制 (RPR System) 議席算定シミュレーター</span>
+    <span style="font-size: 11px; font-weight: normal; opacity: 0.9;">アルゴン研究所 (Argon Institute)</span>
+  </div>
+
+  <div style="margin-bottom: 12px; color: var(--text-muted); font-size: 12px; line-height: 1.6;">
+    本シミュレーターは、鈴木眞志氏が提唱する「決選投票比例代表制（RPR制度）」の理論モデルに基づき、アルゴン研究所が構築した議席試算ソフトウェアです。比例代表制の公平性を担保しつつ、政党連合を通じた安定的な議会過半数の形成プロセスを検証・試算します。一次投票および決選投票における政党連合の再編、未参加票の流入流動、最大剰余方式による最終議席配分、ならびに純粋比例制の試算との差分を計算できます。
+  </div>
+
+  <fieldset class="classic-fieldset">
+    <legend class="classic-legend">【基本設定】 総議席数、阻止条項およびテンプレートシナリオの選択</legend>
+    <table style="width:100%; font-size:12px;">
+      <tr>
+        <td style="width: 340px;">
+          <strong>定数(総議席数):</strong>
+          <input type="number" id="total-seats" value="400" min="10" max="1000" style="width: 65px;"> 議席
+          &nbsp;&nbsp;
+          <strong>阻止条項:</strong>
+          <input type="number" id="electoral-threshold" value="3.0" min="0" max="20" step="0.5" style="width: 50px;"> %
+        </td>
+        <td style="text-align: right;">
+          <button class="classic-btn" onclick="loadSampleScenario(1)">圧勝シナリオ: 一次投票で決着</button>
+          &nbsp;
+          <button class="classic-btn" onclick="loadSampleScenario(2)">決選投票シナリオ: 2大連合による決選</button>
+        </td>
+      </tr>
+    </table>
+  </fieldset>
+
+  <!-- 【設定】 1次投票政党・連合入力 -->
+  <fieldset class="classic-fieldset">
+    <legend class="classic-legend">【一次投票】 各政党の得票数と所属政党連合の設定</legend>
+    <p style="margin: 2px 0 8px 0; font-size: 11px; color: var(--text-muted);">
+      ※単独で立候補する政党は、所属連合名に自党名を入力してください（単独政党は1党で構成される政党連合と可換に扱われます）。<br>
+      <b>※阻止条項の判定基準:</b> 1次投票における<u>所属政党連合の合算得票率</u>が阻止条項(%)未満の場合にその構成政党が一括して足切り対象となります。単独では届かない小党も、多党連合を組むことで阻止条項を免れることが可能です。
+    </p>
+
+    <table class="retro-table" id="party-input-table">
+      <thead>
+        <tr>
+          <th style="width: 22%;">政党名称</th>
+          <th style="width: 25%;">一次投票 得票数 (票)</th>
+          <th style="width: 38%;">一次投票 所属政党連合名</th>
+          <th style="width: 15%;">操作</th>
+        </tr>
+      </thead>
+      <tbody id="party-table-body">
+        <!-- JS動的挿入 -->
+      </tbody>
+    </table>
+
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">
+      <button class="classic-btn" onclick="addPartyRow()">＋ 政党を追加</button>
+      <button class="classic-btn classic-btn-primary" onclick="runStage1Simulation()" style="padding: 5px 18px; font-size: 13px;">
+        一次投票の算定を実行
+      </button>
+    </div>
+  </fieldset>
+
+  <!-- 一次投票 結果セクション -->
+  <div id="stage1-result-area" style="display:none;">
+    <fieldset class="classic-fieldset" style="background-color: #ffffff;">
+      <legend class="classic-legend"> 一次投票の判定と得票率</legend>
+      <div id="stage1-summary-content"></div>
+
+      <details style="margin-top:10px;">
+        <summary style="cursor:pointer; font-weight:bold; color: var(--header-slate);">[+] 一次投票の算定数式プロセスログ（クリックで展開）</summary>
+        <div class="formula-log" id="stage1-log"></div>
+      </details>
+    </fieldset>
+  </div>
+
+  <!-- 決選投票 設定セクション (過半数未達時) -->
+  <div id="stage2-input-area" style="display:none;">
+    <fieldset class="classic-fieldset" style="background-color: #f4f0e6; border-color: var(--accent-gold);">
+      <legend class="classic-legend" style="color: var(--accent-terracotta);">
+        決選投票の実施および未参加票の流入設定
+      </legend>
+      
+      <p style="margin: 2px 0 8px 0; font-size: 11.5px; line-height: 1.5;">
+        一次投票において合算得票率50%以上の過半数を得た政党連合が存在しなかったため、<b>決選投票</b>を実施します。<br>
+        各政党は決選投票に向けた連立の拡大・再編を行うことができます。一次投票の得票を基に上位2つの政党連合が決選進出連合として確定します。
+      </p>
+
+      <!-- 2-A: 政党連合の再編選択 -->
+      <div style="background:#ffffff; padding:10px; border:1px solid var(--border-color); margin-bottom:12px;">
+        <div style="font-weight:bold; color: var(--header-slate); margin-bottom:6px;">
+          1. 各政党の「決選投票における所属政党連合」の選択・再編：
+        </div>
+        <table class="retro-table">
+          <thead>
+            <tr>
+              <th>政党名</th>
+              <th>1次得票数</th>
+              <th>1次所属連合</th>
+              <th>⇒ 決選投票における新・所属政党連合名</th>
+            </tr>
+          </thead>
+          <tbody id="stage2-party-reunion-body">
+            <!-- JS動的挿入 -->
+          </tbody>
+        </table>
+        <button class="classic-btn" onclick="updateRunoffTopUnions()">政党連合再編を適用し、決選進出2大連合を判定</button>
+      </div>
+
+      <!-- 2-B: 流入比率設定および決選票算定 -->
+      <div id="runoff-votes-section" style="display:none; background:#ffffff; padding:10px; border:1px solid var(--border-color);">
+        <div style="font-weight:bold; color: var(--header-slate); margin-bottom:6px;">
+          2. 決選非進出（未参加）政党票の政党別流入設定：
+        </div>
+        <div style="font-size:11px; color: var(--text-muted); margin-bottom:6px;">
+          各政党ごとに「棄権・無効票率(%)」および決選進出2大連合への流入バランスを設定できます。
+        </div>
+
+        <div id="non-participating-flow-container"></div>
+
+        <div style="font-weight:bold; color: var(--header-slate); margin-top:12px; margin-bottom:6px;">
+          3. 決選投票における予測得票数：
+        </div>
+        <table class="retro-table">
+          <thead>
+            <tr>
+              <th>区分</th>
+              <th>決選進出 政党連合名</th>
+              <th>構成政党</th>
+              <th>1次基礎票</th>
+              <th>未参加票流入分</th>
+              <th>決選投票 得票数 (直接調整可)</th>
+            </tr>
+          </thead>
+          <tbody id="runoff-top2-body">
+            <!-- JS動的挿入 -->
+          </tbody>
+        </table>
+
+        <div style="text-align: right; margin-top: 10px;">
+          <button class="classic-btn classic-btn-primary" onclick="runStage2Simulation()" style="padding: 6px 20px; font-size: 13px;">
+            決選投票および最終議席の算定を実行
+          </button>
+        </div>
+      </div>
+    </fieldset>
+  </div>
+
+  <!-- 最終結果 ＆ グラフ閲覧エリア -->
+  <div id="final-result-area" style="display:none;">
+    <fieldset class="classic-fieldset" style="background-color: #ffffff; border-color: var(--header-slate);">
+      <legend class="classic-legend" style="font-size: 14px; color: var(--header-slate);">
+        【最終算定結果】 獲得議席数・純粋比例比較・議席分布グラフ
+      </legend>
+
+      <!-- グラフビューコントロール & エクスポート -->
+      <div style="margin-bottom: 12px; background: var(--panel-bg); padding: 8px 10px; border: 1px solid var(--border-color);">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom: 6px;">
+          <div style="font-weight: bold; color: var(--header-slate);">■ 議席分布の視覚化（グラフ表示切り替え）</div>
+          <div>
+            <button class="classic-btn classic-btn-action" onclick="downloadChartImage()">📷 グラフ(PNG)を保存 (.png)</button>
+            &nbsp;
+            <button class="classic-btn classic-btn-action" onclick="downloadSVGImage()">🎨 グラフ(SVG)を保存 (.svg)</button>
+            &nbsp;
+            <button class="classic-btn classic-btn-action" onclick="downloadCSVData()">📊 集計結果データを出力 (.csv)</button>
+          </div>
+        </div>
+
+        <div class="tab-group">
+          <button class="tab-btn active" id="tab-btn-double" onclick="switchChartMode('double')">2重円グラフ（外:政党 / 内:連合）</button>
+          <button class="tab-btn" id="tab-btn-union" onclick="switchChartMode('union')">政党連合の議席占有率</button>
+          <button class="tab-btn" id="tab-btn-party" onclick="switchChartMode('party')">政党別の議席占有率</button>
+        </div>
+
+        <div class="chart-wrapper">
+          <canvas id="seatsChart"></canvas>
+        </div>
+      </div>
+
+      <!-- 議席一覧テーブル -->
+      <div id="final-seats-summary"></div>
+
+      <!-- 数式プロセスログ -->
+      <details style="margin-top:12px;" open>
+        <summary style="cursor:pointer; font-weight:bold; color: var(--header-slate);">[+] 算定数式・糾合率R・下限保障・最大剰余法（Hare-Niemeyer）詳細ログ</summary>
+        <div class="formula-log" id="stage2-log"></div>
+      </details>
+    </fieldset>
+  </div>
+
+  <div class="footer-text">
+    決選投票比例代表制 (Runoff Proportional Representation System) シミュレーター<br>
+    開発・制作: アルゴン研究所 (Argon Institute)
+  </div>
+
+</div>
+
+<script>
+let currentParties = [];
+let stage1Data = null;
+let stage2Top2Unions = [];
+let chartInstance = null;
+let latestResultData = null;
+let currentChartMode = 'double';
+
+const academicColors = [
+  '#3c4f5e', '#4a5d4e', '#8c5a4c', '#8c784c', '#5e4f3c',
+  '#3c5e58', '#583c5e', '#6e5e3c', '#3c3f5e', '#5e3c45'
+];
+const academicLightColors = [
+  '#5a7388', '#6a8570', '#b57868', '#b59d68', '#88735a',
+  '#5a8880', '#805a88', '#9e885a', '#5a5e88', '#885a65'
+];
+
+window.onload = function() {
+  loadSampleScenario(2);
+};
+
+function loadSampleScenario(id) {
+  if (id === 1) {
+    currentParties = [
+      { name: "政権保持党", votes: 18000000, union1: "与党連合" },
+      { name: "一緒保持党", votes: 4000000, union1: "与党連合" },
+      { name: "縁下力持党", votes: 4000000, union1: "与党連合" },
+      { name: "政権目指党", votes: 8000000, union1: "野党連合" },
+      { name: "共に目指党", votes: 2500000, union1: "野党連合" },
+      { name: "様子見の会", votes: 2000000, union1: "様子見の会" },
+      { name: "全力投球党", votes: 1500000, union1: "全力投球党" }
+    ];
+  } else {
+    currentParties = [
+      { name: "保守党", votes: 13000000, union1: "保守連合" ,union2: "大保守連合"},
+      { name: "自由党", votes: 3000000, union1: "保守連合", union2: "大保守連合" },
+      { name: "社会自由党", votes: 11000000, union1: "リベラル連合", union2: "中道左派同盟" },
+      { name: "正義党", votes: 4000000, union1: "リベラル連合", union2: "中道左派同盟" },
+      { name: "中道党", votes: 5000000, union1: "中道党", union2: "中道党" },
+      { name: "労農戦線", votes: 1000000, union1: "労農戦線", union2: "労農戦線" }
+    ];
+  }
+  document.getElementById("total-seats").value = 400;
+  document.getElementById("electoral-threshold").value = 3.0;
+  resetAllResults();
+  renderPartyTable();
+}
+
+function renderPartyTable() {
+  const tbody = document.getElementById("party-table-body");
+  if (!tbody) return;
+  tbody.innerHTML = "";
+
+  currentParties.forEach((p, idx) => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td><input type="text" class="party-name-input" value="${escapeHtml(p.name)}" style="width:95%;" onchange="updatePartyDataFromTable()"></td>
+      <td><input type="number" class="party-votes-input" value="${p.votes}" min="0" step="10000" style="width:95%;" onchange="updatePartyDataFromTable()"></td>
+      <td><input type="text" class="party-union1-input" value="${escapeHtml(p.union1)}" style="width:95%;" onchange="updatePartyDataFromTable()"></td>
+      <td style="text-align:center;"><button class="classic-btn" onclick="deletePartyRow(${idx})">削除</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function updatePartyDataFromTable() {
+  const tbody = document.getElementById("party-table-body");
+  if (!tbody) return;
+  const rows = tbody.querySelectorAll("tr");
+  rows.forEach((row, i) => {
+    if (currentParties[i]) {
+      const nameInput = row.querySelector(".party-name-input");
+      const votesInput = row.querySelector(".party-votes-input");
+      const union1Input = row.querySelector(".party-union1-input");
+      if (nameInput) currentParties[i].name = nameInput.value.trim();
+      if (votesInput) currentParties[i].votes = Math.max(0, parseInt(votesInput.value) || 0);
+      if (union1Input) currentParties[i].union1 = union1Input.value.trim() || currentParties[i].name;
+    }
+  });
+}
+
+function addPartyRow() {
+  updatePartyDataFromTable();
+  const nextId = currentParties.length + 1;
+  currentParties.push({
+    name: `新政党${nextId}`,
+    votes: 1000000,
+    union1: `新政党${nextId}`
+  });
+  renderPartyTable();
+}
+
+function deletePartyRow(index) {
+  updatePartyDataFromTable();
+  currentParties.splice(index, 1);
+  renderPartyTable();
+}
+
+function resetAllResults() {
+  document.getElementById("stage1-result-area").style.display = "none";
+  document.getElementById("stage2-input-area").style.display = "none";
+  document.getElementById("final-result-area").style.display = "none";
+  document.getElementById("stage1-log").textContent = "";
+  document.getElementById("stage2-log").textContent = "";
+  if (chartInstance) {
+    chartInstance.destroy();
+    chartInstance = null;
+  }
+}
+
+function calculateLargestRemainder(sharesMap, seatsToAllocate, qualifiedKeys) {
+  let log = "";
+  let allocatedSeats = {};
+  let remainders = [];
+  let totalAllocated = 0;
+
+  qualifiedKeys.forEach(key => {
+    let share = sharesMap[key] || 0;
+    let exactQuota = share * seatsToAllocate;
+    let integerSeats = Math.floor(exactQuota);
+    let remainder = exactQuota - integerSeats;
+
+    allocatedSeats[key] = integerSeats;
+    totalAllocated += integerSeats;
+    remainders.push({ key: key, remainder: remainder, exactQuota: exactQuota });
+  });
+
+  let leftoverSeats = seatsToAllocate - totalAllocated;
+  log += `  ・標準クオータ算定 (総席数: ${seatsToAllocate}, 初期確定席数: ${totalAllocated}, 残余席数: ${leftoverSeats})\n`;
+
+  remainders.sort((a, b) => b.remainder - a.remainder);
+
+  for (let i = 0; i < leftoverSeats && i < remainders.length; i++) {
+    let key = remainders[i].key;
+    allocatedSeats[key] = (allocatedSeats[key] || 0) + 1;
+  }
+
+  qualifiedKeys.forEach(key => {
+    let seat = allocatedSeats[key] || 0;
+    let share = sharesMap[key] || 0;
+    let exactQuota = share * seatsToAllocate;
+    log += `     - [${key}]: 占有/得票比率 ${(share * 100).toFixed(2)}% -> クオータ ${exactQuota.toFixed(3)} -> 獲得 ${seat} 議席\n`;
+  });
+
+  return { seats: allocatedSeats, log: log };
+}
+
+function calculatePureProportionalSeats(parties, totalSeats, totalVotes, thresholdPercent) {
+  let thresholdRatio = thresholdPercent / 100;
+  
+  let unionVotesMap = {};
+  parties.forEach(p => {
+    let uName = p.union1.trim() || p.name;
+    unionVotesMap[uName] = (unionVotesMap[uName] || 0) + p.votes;
+  });
+
+  let partyShareMap = {};
+  let qualifiedVotesSum = 0;
+  let qualifiedKeys = [];
+
+  parties.forEach(p => {
+    let uName = p.union1.trim() || p.name;
+    let unionShare = unionVotesMap[uName] / totalVotes;
+    
+    if (unionShare >= thresholdRatio) {
+      qualifiedVotesSum += p.votes;
+      qualifiedKeys.push(p.name);
+    }
+  });
+
+  parties.forEach(p => {
+    let uName = p.union1.trim() || p.name;
+    let unionShare = unionVotesMap[uName] / totalVotes;
+    if (unionShare >= thresholdRatio && qualifiedVotesSum > 0) {
+      partyShareMap[p.name] = p.votes / qualifiedVotesSum;
+    } else {
+      partyShareMap[p.name] = 0;
+    }
+  });
+
+  let alloc = calculateLargestRemainder(partyShareMap, totalSeats, qualifiedKeys);
+  return alloc.seats;
+}
+
+function runStage1Simulation() {
+  updatePartyDataFromTable();
+  resetAllResults();
+
+  const totalSeats = parseInt(document.getElementById("total-seats").value) || 400;
+  const thresholdPercent = parseFloat(document.getElementById("electoral-threshold").value) || 0;
+  const thresholdRatio = thresholdPercent / 100;
+
+  let totalVotes = 0;
+  currentParties.forEach(p => totalVotes += p.votes);
+
+  if (totalVotes === 0) {
+    console.warn("一次投票の合計得票数が0です。正しい得票数を入力してください。");
+    return;
+  }
+
+  let pureProportionalSeats = calculatePureProportionalSeats(currentParties, totalSeats, totalVotes, thresholdPercent);
+
+  let unionMap = {};
+  currentParties.forEach(p => {
+    let uName = p.union1.trim() || p.name;
+    if (!unionMap[uName]) {
+      unionMap[uName] = { name: uName, votes: 0, parties: [] };
+    }
+    unionMap[uName].votes += p.votes;
+    unionMap[uName].parties.push(p);
+  });
+
+  let qualifiedUnions = [];
+  for (let uName in unionMap) {
+    let u = unionMap[uName];
+    u.share = u.votes / totalVotes;
+    u.isQualified = (u.share >= thresholdRatio);
+    u.hasQualifiedParty = u.isQualified;
+    if (u.isQualified) {
+      qualifiedUnions.push(uName);
+    }
+  }
+
+  let qualifiedPartyNames = [];
+  currentParties.forEach(p => {
+    let uName = p.union1.trim() || p.name;
+    p.isQualified = unionMap[uName].isQualified;
+    if (p.isQualified) qualifiedPartyNames.push(p.name);
+  });
+
+  let log = `=== アルゴン研究所 RPRモデル 【ステップ1】 一次投票 計算プロセス ===\n`;
+  log += `総得票数: ${totalVotes.toLocaleString()} 票 / 総議席数: ${totalSeats} / 阻止条項: ${thresholdPercent}%\n\n`;
+
+  log += `[0] 各政党連合の阻止条項（1次投票での連合合算得票率基準）判定:\n`;
+  for (let uName in unionMap) {
+    let u = unionMap[uName];
+    log += `  ・政党連合 [${uName}]: 1次合算得票率 ${(u.share * 100).toFixed(2)}% -> ${u.isQualified ? '〇 クリア (所属構成政党に議席獲得権あり)' : '× 未達 (足切り: 所属全政党が議席配分対象外)'}\n`;
+    u.parties.forEach(p => {
+      let pShare = p.votes / totalVotes;
+      log += `     - 構成政党 [${p.name}]: 単独得票率 ${(pShare * 100).toFixed(2)}% (${u.isQualified ? '連合参画により議席権保持' : '連合ごと足切り対象'})\n`;
+    });
+  }
+  log += `\n`;
+
+  let winningUnion = null;
+
+  log += `[1] 一次投票 集計・得票率:\n`;
+  for (let uName in unionMap) {
+    let u = unionMap[uName];
+    log += `  ・政党連合 [${uName}]: ${u.votes.toLocaleString()} 票 (得票率: ${(u.share * 100).toFixed(2)}%)\n`;
+    if (u.share >= 0.50 && u.isQualified) {
+      winningUnion = uName;
+    }
+  }
+
+  stage1Data = {
+    totalSeats: totalSeats,
+    totalVotes: totalVotes,
+    thresholdPercent: thresholdPercent,
+    unionMap: unionMap,
+    winningUnion: winningUnion,
+    pureProportionalSeats: pureProportionalSeats
+  };
+
+  let summaryHtml = `
+    <table class="retro-table">
+      <thead>
+        <tr>
+          <th>政党連合名</th>
+          <th>構成政党</th>
+          <th>一次合算得票数</th>
+          <th>一次合算得票率</th>
+          <th>過半数(50%)判定</th>
+        </tr>
+      </thead>
+      <tbody>
+  `;
+
+  for (let uName in unionMap) {
+    let u = unionMap[uName];
+    let partyNames = u.parties.map(p => p.name).join(", ");
+    let isWin = (uName === winningUnion);
+    summaryHtml += `
+      <tr class="${isWin ? 'highlight' : ''}">
+        <td><strong>${escapeHtml(uName)}</strong></td>
+        <td>${escapeHtml(partyNames)}</td>
+        <td style="text-align:right;">${u.votes.toLocaleString()} 票</td>
+        <td style="text-align:right;">${(u.share * 100).toFixed(2)}%</td>
+        <td style="text-align:center;">${isWin ? '<b class="notice-tag">★ 50%超 達成 (一次勝利)</b>' : '未達'}</td>
+      </tr>
+    `;
+  }
+  summaryHtml += `</tbody></table>`;
+
+  document.getElementById("stage1-summary-content").innerHTML = summaryHtml;
+
+  if (winningUnion) {
+    log += `\n★ 判定: 政党連合 [${winningUnion}] が過半数(${(unionMap[winningUnion].share * 100).toFixed(2)}%)を獲得しました。\n`;
+    log += `  1次投票で選挙戦は終了し、規定数式により議席占有率および議席配分を確定します。\n\n`;
+
+    let winShare = unionMap[winningUnion].share;
+    let winSeatShare = winShare * 0.75 + 0.25;
+
+    log += `[2] 各政党連合の議席占有率 算定（無資格連合は除外調整）:\n`;
+    log += `  ・勝利連合 [${winningUnion}] 議席占有率 = ${winShare.toFixed(4)} × 0.75 + 0.25 = ${winSeatShare.toFixed(4)} (${(winSeatShare * 100).toFixed(2)}%)\n`;
+
+    let rawUnionSeatShares = {};
+    rawUnionSeatShares[winningUnion] = winSeatShare;
+
+    let V = (1 - winSeatShare) / (1 - winShare);
+    log += `  ・敗北連合調整係数 V = (1 - ${winSeatShare.toFixed(4)}) / (1 - ${winShare.toFixed(4)}) = ${V.toFixed(6)}\n`;
+
+    let qualifiedSharesSum = winSeatShare;
+    for (let uName in unionMap) {
+      if (uName !== winningUnion) {
+        if (qualifiedUnions.includes(uName)) {
+          let X = unionMap[uName].share;
+          let loseSeatShare = X * V;
+          rawUnionSeatShares[uName] = loseSeatShare;
+          qualifiedSharesSum += loseSeatShare;
+          log += `  ・敗北連合 [${uName}] 暫定占有率 = ${X.toFixed(4)} × ${V.toFixed(6)} = ${loseSeatShare.toFixed(4)}\n`;
+        } else {
+          rawUnionSeatShares[uName] = 0;
+          log += `  ・無資格連合 [${uName}] 占有率 = 0.0000 (連合の1次得票率が阻止条項未達のため除外)\n`;
+        }
+      }
+    }
+
+    let unionSeatShares = {};
+    for (let uName in unionMap) {
+      if (qualifiedUnions.includes(uName) && qualifiedSharesSum > 0) {
+        unionSeatShares[uName] = rawUnionSeatShares[uName] / qualifiedSharesSum;
+        log += `  ・連合 [${uName}] 正規化最終占有率 = ${(unionSeatShares[uName] * 100).toFixed(2)}%\n`;
+      } else {
+        unionSeatShares[uName] = 0;
+      }
+    }
+
+    log += `\n[3] 最大剰余法（Hare-Niemeyer式）による政党連合別 議席割り当て (阻止条項未達連合を除外):\n`;
+    let unionSeatAllocation = calculateLargestRemainder(unionSeatShares, totalSeats, qualifiedUnions);
+    log += unionSeatAllocation.log;
+
+    log += `\n[4] 政党連合内での構成政党への最大剰余比例配分:\n`;
+    let finalPartySeats = {};
+
+    for (let uName in unionMap) {
+      let uSeats = unionSeatAllocation.seats[uName] || 0;
+      let u = unionMap[uName];
+      log += `  ■ 連合 [${uName}] 獲得議席: ${uSeats} 議席\n`;
+
+      if (uSeats > 0 && u.isQualified) {
+        let uQualifiedParties = u.parties;
+        let uQualifiedNames = uQualifiedParties.map(p => p.name);
+        let qualifiedVotesSum = uQualifiedParties.reduce((sum, p) => sum + p.votes, 0);
+
+        let partyShareInUnion = {};
+        u.parties.forEach(p => {
+          partyShareInUnion[p.name] = (qualifiedVotesSum > 0) ? (p.votes / qualifiedVotesSum) : 0;
+        });
+
+        let partyAlloc = calculateLargestRemainder(partyShareInUnion, uSeats, uQualifiedNames);
+        log += partyAlloc.log;
+
+        for (let pName in partyAlloc.seats) {
+          finalPartySeats[pName] = partyAlloc.seats[pName];
+        }
+      } else {
+        u.parties.forEach(p => {
+          finalPartySeats[p.name] = 0;
+        });
+        if (!u.isQualified) {
+          log += `     (連合の1次得票率が阻止条項未達のため配分不可 0 議席)\n`;
+        }
+      }
+    }
+
+    document.getElementById("stage1-log").textContent = log;
+    document.getElementById("stage1-result-area").style.display = "block";
+
+    renderFinalResults(unionMap, unionSeatShares, unionSeatAllocation.seats, finalPartySeats, winningUnion, null, true);
+  } else {
+    log += `\n★ 判定: 50%以上の過半数を得た政党連合が存在しないため、決選投票へ移行します。\n`;
+    document.getElementById("stage1-log").textContent = log;
+    document.getElementById("stage1-result-area").style.display = "block";
+
+    setupStage2Interface();
+  }
+}
+
+function setupStage2Interface() {
+  document.getElementById("stage2-input-area").style.display = "block";
+  const tbody = document.getElementById("stage2-party-reunion-body");
+  if (!tbody) return;
+
+  tbody.innerHTML = "";
+  currentParties.forEach((p, idx) => {
+    p.union2 = p.union2 || p.union1;
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td><strong>${escapeHtml(p.name)}</strong></td>
+      <td>${p.votes.toLocaleString()} 票</td>
+      <td>${escapeHtml(p.union1)}</td>
+      <td>
+        <input type="text" class="party-union2-input" value="${escapeHtml(p.union2)}" style="width:90%;" data-index="${idx}">
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  updateRunoffTopUnions();
+}
+
+function updateRunoffTopUnions() {
+  const tbody = document.getElementById("stage2-party-reunion-body");
+  if (tbody) {
+    const inputs = tbody.querySelectorAll(".party-union2-input");
+    inputs.forEach(input => {
+      const idx = parseInt(input.getAttribute("data-index"));
+      if (currentParties[idx]) {
+        currentParties[idx].union2 = input.value.trim() || currentParties[idx].union1;
+      }
+    });
+  }
+
+  let unionMap2 = {};
+  currentParties.forEach(p => {
+    let uName = p.union2 || p.union1;
+    if (!unionMap2[uName]) {
+      unionMap2[uName] = { name: uName, votes: 0, parties: [] };
+    }
+    unionMap2[uName].votes += p.votes;
+    unionMap2[uName].parties.push(p);
+  });
+
+  let unionList = Object.values(unionMap2).sort((a, b) => b.votes - a.votes);
+
+  if (unionList.length < 2) {
+    console.warn("決選投票には少なくとも2つの政党連合が必要です。");
+    return;
+  }
+
+  stage2Top2Unions = [unionList[0], unionList[1]];
+
+  document.getElementById("runoff-votes-section").style.display = "block";
+
+  const flowContainer = document.getElementById("non-participating-flow-container");
+  const top0Name = stage2Top2Unions[0].name;
+  const top1Name = stage2Top2Unions[1].name;
+
+  const nonPartParties = currentParties.filter(p => {
+    let uName = p.union2 || p.union1;
+    return uName !== top0Name && uName !== top1Name;
+  });
+
+  if (nonPartParties.length > 0) {
+    let tableHtml = `
+      <div style="background:#f9f8f5; padding:8px 12px; border:1px solid #d4d0c5; margin-bottom:10px;">
+        <div style="font-weight:bold; color:var(--header-slate); margin-bottom:6px;">
+          【政党別設定】 決選非進出票の棄権率・流入バランス個別設定
+        </div>
+        <table class="retro-table">
+          <thead>
+            <tr>
+              <th style="width:20%;">非進出政党名</th>
+              <th style="width:20%;">1次得票数</th>
+              <th style="width:20%;">棄権・無効票率</th>
+              <th style="width:40%;">流入比率 ([${escapeHtml(top0Name)}] ◄──► [${escapeHtml(top1Name)}])</th>
+            </tr>
+          </thead>
+          <tbody>
+    `;
+
+    nonPartParties.forEach(p => {
+      let pIdx = currentParties.indexOf(p);
+      if (p.abstainRate === undefined) p.abstainRate = 15;
+      if (p.flowRatio === undefined) p.flowRatio = 50;
+
+      tableHtml += `
+        <tr class="non-part-party-row" data-party-index="${pIdx}">
+          <td><strong>${escapeHtml(p.name)}</strong></td>
+          <td>${p.votes.toLocaleString()} 票</td>
+          <td>
+            <input type="number" class="party-abstain-input" value="${p.abstainRate}" min="0" max="100" style="width:50px;" onchange="calculateNonParticipatingFlow()"> %
+          </td>
+          <td>
+            <div style="display:flex; justify-content:space-between; font-size:10px; color:var(--text-muted);">
+              <span>100% ─► [${escapeHtml(top0Name)}]</span>
+              <span class="party-slider-val">${100 - p.flowRatio}% / ${p.flowRatio}%</span>
+              <span>[${escapeHtml(top1Name)}] ◄─ 100%</span>
+            </div>
+            <input type="range" class="classic-slider party-flow-slider" min="0" max="100" value="${p.flowRatio}" oninput="calculateNonParticipatingFlow()">
+          </td>
+        </tr>
+      `;
+    });
+
+    tableHtml += `
+          </tbody>
+        </table>
+      </div>
+    `;
+
+    flowContainer.innerHTML = tableHtml;
+  } else {
+    flowContainer.innerHTML = `<div style="font-size:11px; color:var(--text-muted); margin-bottom:8px;">※ 全政党が上位2大連合のいずれかに参画しています。</div>`;
+  }
+
+  renderRunoffTop2Table(0, 0);
+  calculateNonParticipatingFlow();
+}
+
+function calculateNonParticipatingFlow() {
+  if (!stage2Top2Unions || stage2Top2Unions.length < 2) return;
+
+  let totalFlowToTop0 = 0;
+  let totalFlowToTop1 = 0;
+
+  const partyRows = document.querySelectorAll(".non-part-party-row");
+  partyRows.forEach(row => {
+    const pIdx = parseInt(row.getAttribute("data-party-index"));
+    const p = currentParties[pIdx];
+    if (!p) return;
+
+    const abstainInput = row.querySelector(".party-abstain-input");
+    const sliderInput = row.querySelector(".party-flow-slider");
+    const labelSpan = row.querySelector(".party-slider-val");
+
+    const abstainRate = abstainInput ? Math.max(0, Math.min(100, parseFloat(abstainInput.value) || 0)) : 15;
+    const flowRatio = sliderInput ? parseInt(sliderInput.value) : 50;
+
+    p.abstainRate = abstainRate;
+    p.flowRatio = flowRatio;
+
+    if (labelSpan) {
+      labelSpan.textContent = `${100 - flowRatio}% / ${flowRatio}%`;
+    }
+
+    let effectiveVotes = Math.round(p.votes * (1 - abstainRate / 100));
+    let flowToTop1 = Math.round(effectiveVotes * (flowRatio / 100));
+    let flowToTop0 = effectiveVotes - flowToTop1;
+
+    totalFlowToTop0 += flowToTop0;
+    totalFlowToTop1 += flowToTop1;
+  });
+
+  renderRunoffTop2Table(totalFlowToTop0, totalFlowToTop1);
+}
+
+function renderRunoffTop2Table(flow0, flow1) {
+  const tbody = document.getElementById("runoff-top2-body");
+  if (!tbody || !stage2Top2Unions || stage2Top2Unions.length < 2) return;
+
+  const base0 = stage2Top2Unions[0].votes;
+  const base1 = stage2Top2Unions[1].votes;
+
+  const parties0 = stage2Top2Unions[0].parties.map(p => p.name).join(", ");
+  const parties1 = stage2Top2Unions[1].parties.map(p => p.name).join(", ");
+
+  const total0 = base0 + flow0;
+  const total1 = base1 + flow1;
+
+  tbody.innerHTML = `
+    <tr>
+      <td><b>第1位連合</b></td>
+      <td><strong>${escapeHtml(stage2Top2Unions[0].name)}</strong></td>
+      <td>${escapeHtml(parties0)}</td>
+      <td>${base0.toLocaleString()} 票</td>
+      <td style="color:#2a5a8c;">+${flow0.toLocaleString()} 票</td>
+      <td><input type="number" id="runoff-votes-0" value="${total0}" min="0" style="width:110px; font-weight:bold;"> 票</td>
+    </tr>
+    <tr>
+      <td><b>第2位連合</b></td>
+      <td><strong>${escapeHtml(stage2Top2Unions[1].name)}</strong></td>
+      <td>${escapeHtml(parties1)}</td>
+      <td>${base1.toLocaleString()} 票</td>
+      <td style="color:#2a5a8c;">+${flow1.toLocaleString()} 票</td>
+      <td><input type="number" id="runoff-votes-1" value="${total1}" min="0" style="width:110px; font-weight:bold;"> 票</td>
+    </tr>
+  `;
+}
+
+function runStage2Simulation() {
+  const votes0 = parseInt(document.getElementById("runoff-votes-0").value) || 0;
+  const votes1 = parseInt(document.getElementById("runoff-votes-1").value) || 0;
+  const totalRunoffVotes = votes0 + votes1;
+
+  if (totalRunoffVotes === 0) {
+    console.warn("決選投票の得票数が0です。正しい得票数を入力してください。");
+    return;
+  }
+
+  const totalSeats = stage1Data.totalSeats;
+  const totalStage1Votes = stage1Data.totalVotes;
+  const thresholdPercent = stage1Data.thresholdPercent;
+  const thresholdRatio = thresholdPercent / 100;
+
+  let stage1UnionVotesMap = {};
+  currentParties.forEach(p => {
+    let uName = p.union1.trim() || p.name;
+    stage1UnionVotesMap[uName] = (stage1UnionVotesMap[uName] || 0) + p.votes;
+  });
+
+  let qualifiedPartyNames = [];
+  currentParties.forEach(p => {
+    let uName = p.union1.trim() || p.name;
+    let u1Share = stage1UnionVotesMap[uName] / totalStage1Votes;
+    p.isQualified = (u1Share >= thresholdRatio);
+    if (p.isQualified) qualifiedPartyNames.push(p.name);
+  });
+
+  let winIndex = (votes0 >= votes1) ? 0 : 1;
+  let loseIndex = (winIndex === 0) ? 1 : 0;
+
+  let runoffWinUnion = stage2Top2Unions[winIndex];
+  let runoffLoseUnion = stage2Top2Unions[loseIndex];
+
+  let runoffWinVotes = (winIndex === 0) ? votes0 : votes1;
+  let runoffLoseVotes = (winIndex === 0) ? votes1 : votes0;
+
+  let runoffWinShare = runoffWinVotes / totalRunoffVotes;
+  let runoffLoseShare = runoffLoseVotes / totalRunoffVotes;
+
+  let log = `=== 鈴木眞志氏提唱 RPRモデル 【ステップ2】 決選投票・数式算定プロセス ===\n`;
+  log += `■ 阻止条項設定: ${thresholdPercent}% (1次投票における政党連合の合算得票率で判定)\n`;
+  log += `■ 決選進出 2大政党連合 得票結果:\n`;
+  log += `  1. [${runoffWinUnion.name}] 決選得票数: ${runoffWinVotes.toLocaleString()} 票 (決選得票率: ${(runoffWinShare * 100).toFixed(2)}%) -> 決選勝利連合\n`;
+  log += `  2. [${runoffLoseUnion.name}] 決選得票数: ${runoffLoseVotes.toLocaleString()} 票 (決選得票率: ${(runoffLoseShare * 100).toFixed(2)}%) -> 決選敗北連合\n\n`;
+
+  let W_run = (runoffWinShare / 2.0) + 0.30;
+  log += `[1] 決選勝利連合 [${runoffWinUnion.name}] 議席占有率 (W_run):\n`;
+  log += `  ・公式: 決選得票率 / 2 + 0.30\n`;
+  log += `  ・W_run = ${runoffWinShare.toFixed(4)} / 2 + 0.30 = ${W_run.toFixed(4)} (${(W_run * 100).toFixed(2)}%)\n\n`;
+
+  let Y = 1.0 - W_run;
+
+  let winStage1Share = runoffWinUnion.votes / totalStage1Votes;
+  let loseStage1Share = runoffLoseUnion.votes / totalStage1Votes;
+
+  let R = loseStage1Share / (1.0 - winStage1Share);
+  let L_run_calc = Y * R;
+
+  let L_run_floor = (1.0 - W_run) * 0.60;
+  let L_run = Math.max(L_run_calc, L_run_floor);
+  let isFloorApplied = (L_run_floor > L_run_calc);
+
+  log += `[2] 決選敗北連合 [${runoffLoseUnion.name}] 議席占有率 (L_run):\n`;
+  log += `  ・残余議席枠 (Y = 1 - W_run): 1 - ${W_run.toFixed(4)} = ${Y.toFixed(4)}\n`;
+  log += `  ・1次合算得票率 (拡大連立含む): 勝利連合=${(winStage1Share * 100).toFixed(2)}%, 敗北連合=${(loseStage1Share * 100).toFixed(2)}%\n`;
+  log += `  ・糾合率 (R) = ${loseStage1Share.toFixed(4)} / (1 - ${winStage1Share.toFixed(4)}) = ${R.toFixed(6)} (${(R * 100).toFixed(2)}%)\n`;
+  log += `  ・計算占有率 = Y × R = ${Y.toFixed(4)} × ${R.toFixed(6)} = ${L_run_calc.toFixed(4)} (${(L_run_calc * 100).toFixed(2)}%)\n`;
+  log += `  ・下限保障値 = (1 - W_run) × 0.60 = ${L_run_floor.toFixed(4)} (${(L_run_floor * 100).toFixed(2)}%)\n`;
+  log += `  ・最終 L_run = ${L_run.toFixed(4)} (${(L_run * 100).toFixed(2)}%) ${isFloorApplied ? ' [※60%下限ルール適用]' : ''}\n\n`;
+
+  let unionMap2 = {};
+  currentParties.forEach(p => {
+    let uName = (p.union2 && p.union2.trim()) ? p.union2.trim() : p.name;
+    if (!unionMap2[uName]) {
+      unionMap2[uName] = { name: uName, votes: 0, parties: [] };
+    }
+    unionMap2[uName].votes += p.votes;
+    unionMap2[uName].parties.push(p);
+  });
+
+  let qualifiedUnions = [];
+  for (let uName in unionMap2) {
+    let u = unionMap2[uName];
+    u.hasQualifiedParty = u.parties.some(p => p.isQualified);
+    if (u.hasQualifiedParty) {
+      qualifiedUnions.push(uName);
+    }
+  }
+
+  let rawUnionSeatShares = {};
+  rawUnionSeatShares[runoffWinUnion.name] = qualifiedUnions.includes(runoffWinUnion.name) ? W_run : 0;
+  rawUnionSeatShares[runoffLoseUnion.name] = qualifiedUnions.includes(runoffLoseUnion.name) ? L_run : 0;
+
+  let O_total = 1.0 - (W_run + L_run);
+  if (O_total < 0) O_total = 0;
+
+  log += `[3] その他の敗北連合 (決選非進出) の合計議席占有率 (O_total):\n`;
+  log += `  ・O_total = 1 - (W_run + L_run) = ${O_total.toFixed(4)} (${(O_total * 100).toFixed(2)}%)\n`;
+
+  let otherQualifiedUnionsStage1Total = 0;
+  for (let uName in unionMap2) {
+    if (uName !== runoffWinUnion.name && uName !== runoffLoseUnion.name) {
+      if (qualifiedUnions.includes(uName)) {
+        otherQualifiedUnionsStage1Total += unionMap2[uName].votes;
+      }
+    }
+  }
+
+  for (let uName in unionMap2) {
+    if (uName !== runoffWinUnion.name && uName !== runoffLoseUnion.name) {
+      if (qualifiedUnions.includes(uName)) {
+        let ratioInOthers = (otherQualifiedUnionsStage1Total > 0) ? (unionMap2[uName].votes / otherQualifiedUnionsStage1Total) : 0;
+        let share = O_total * ratioInOthers;
+        rawUnionSeatShares[uName] = share;
+        log += `  ・その他有資格連合 [${uName}]: 占有率 = ${O_total.toFixed(4)} × (${unionMap2[uName].votes.toLocaleString()} / ${otherQualifiedUnionsStage1Total.toLocaleString()}) = ${share.toFixed(4)} (${(share * 100).toFixed(2)}%)\n`;
+      } else {
+        rawUnionSeatShares[uName] = 0;
+        log += `  ・その他無資格連合 [${uName}]: 1次連合得票率が阻止条項未達のため 0.0000 (除外)\n`;
+      }
+    }
+  }
+
+  let qualifiedSharesSum = 0;
+  for (let uName in unionMap2) {
+    if (qualifiedUnions.includes(uName)) {
+      qualifiedSharesSum += rawUnionSeatShares[uName];
+    }
+  }
+
+  let unionSeatShares = {};
+  for (let uName in unionMap2) {
+    if (qualifiedUnions.includes(uName) && qualifiedSharesSum > 0) {
+      unionSeatShares[uName] = rawUnionSeatShares[uName] / qualifiedSharesSum;
+    } else {
+      unionSeatShares[uName] = 0;
+    }
+  }
+
+  log += `\n[4] 最大剰余法（Hare-Niemeyer式）による政党連合別 議席割り当て (阻止条項未達連合を除外):\n`;
+  let unionSeatAllocation = calculateLargestRemainder(unionSeatShares, totalSeats, qualifiedUnions);
+  log += unionSeatAllocation.log;
+
+  log += `\n[5] 各政党連合内での構成政党への最終比例分配 (1次連合での足切り適用):\n`;
+  let finalPartySeats = {};
+
+  for (let uName in unionMap2) {
+    let uSeats = unionSeatAllocation.seats[uName] || 0;
+    let u = unionMap2[uName];
+    log += `  ■ 連合 [${uName}] 獲得議席: ${uSeats} 議席\n`;
+
+    if (uSeats > 0 && u.hasQualifiedParty) {
+      let uQualifiedParties = u.parties.filter(p => p.isQualified);
+      let uQualifiedNames = uQualifiedParties.map(p => p.name);
+      let qualifiedVotesSum = uQualifiedParties.reduce((sum, p) => sum + p.votes, 0);
+
+      let partyShareInUnion = {};
+      u.parties.forEach(p => {
+        if (p.isQualified && qualifiedVotesSum > 0) {
+          partyShareInUnion[p.name] = p.votes / qualifiedVotesSum;
+        } else {
+          partyShareInUnion[p.name] = 0;
+          log += `     ※ 政党 [${p.name}] は1次連合得票率が阻止条項未達のため獲得議席 0 議席\n`;
+        }
+      });
+
+      let partyAlloc = calculateLargestRemainder(partyShareInUnion, uSeats, uQualifiedNames);
+      log += partyAlloc.log;
+
+      for (let pName in partyAlloc.seats) {
+        finalPartySeats[pName] = partyAlloc.seats[pName];
+      }
+    } else {
+      u.parties.forEach(p => {
+        finalPartySeats[p.name] = 0;
+      });
+      log += `     (連合配分議席 0 または所属1次連合が阻止条項未達のため政党議席も 0)\n`;
+    }
+  }
+
+  document.getElementById("stage2-log").textContent = log;
+
+  renderFinalResults(
+    unionMap2,
+    unionSeatShares,
+    unionSeatAllocation.seats,
+    finalPartySeats,
+    runoffWinUnion.name,
+    runoffLoseUnion.name,
+    false
+  );
+}
+
+function renderFinalResults(unionMap, unionSeatShares, unionSeats, partySeats, winUnionName, loseUnionName, isStage1 = false) {
+  let pureSeats = stage1Data.pureProportionalSeats;
+  const thresholdPercent = stage1Data.thresholdPercent;
+  const thresholdRatio = thresholdPercent / 100;
+  const totalVotes = stage1Data.totalVotes;
+
+  let html = `
+    <div style="font-weight:bold; color: var(--header-slate); margin-bottom: 6px;">
+      各政党・政党連合の獲得議席数と純粋比例基準比（総議席数: ${stage1Data.totalSeats} / 阻止条項: ${thresholdPercent}% ）
+    </div>
+    <table class="retro-table">
+      <thead>
+        <tr>
+          <th>政党名</th>
+          <th>1次所属連合</th>
+          <th>最終所属 連合</th>
+          <th>連合獲得議席</th>
+          <th>1次得票数(単独得票率)</th>
+          <th>純粋比例基準議席</th>
+          <th>最終獲得議席</th>
+          <th>プレミアム効果<br><span style="font-size:10px; font-weight:normal;">(本制度 − 純粋比例)</span></th>
+          <th>区分</th>
+        </tr>
+      </thead>
+      <tbody>
+  `;
+
+  currentParties.forEach(p => {
+    let uName = isStage1 ? p.union1 : ((p.union2 && p.union2.trim()) ? p.union2.trim() : p.union1);
+    let category = "その他敗北連合";
+    let rowClass = "";
+
+    let pShare = p.votes / totalVotes;
+    
+    let u1Name = p.union1.trim() || p.name;
+    let u1Share = stage1Data.unionMap[u1Name] ? stage1Data.unionMap[u1Name].share : pShare;
+    let isPassedThreshold = u1Share >= thresholdRatio;
+
+    if (uName === winUnionName) {
+      category = isStage1 ? "<b style='color: var(--accent-terracotta);'>1次 勝利連合</b>" : "<b style='color: var(--accent-terracotta);'>決選 勝利連合</b>";
+      rowClass = "highlight";
+    } else if (uName === loseUnionName) {
+      category = "<b>決選 敗北連合</b>";
+    }
+
+    if (!isPassedThreshold) {
+      category += " <span style='color:#a83232; font-size:10px;'>(1次連合足切り)</span>";
+    }
+
+    let pSeats = partySeats[p.name] || 0;
+    let uSeats = unionSeats[uName] || 0;
+    let benchmark = pureSeats[p.name] || 0;
+    let diff = pSeats - benchmark;
+
+    let diffClass = "diff-zero";
+    let diffStr = "0";
+    if (diff > 0) {
+      diffClass = "diff-plus";
+      diffStr = `+${diff}`;
+    } else if (diff < 0) {
+      diffClass = "diff-minus";
+      diffStr = `${diff}`;
+    }
+
+    html += `
+      <tr class="${rowClass}">
+        <td><strong>${escapeHtml(p.name)}</strong></td>
+        <td>${escapeHtml(p.union1)}</td>
+        <td><strong>${escapeHtml(uName)}</strong></td>
+        <td style="text-align:center; font-weight:bold; color: var(--header-sage);">${uSeats} 議席</td>
+        <td style="text-align:right;">${p.votes.toLocaleString()} 票<br><span style="font-size:10px; color:#555;">(${(pShare*100).toFixed(2)}%)</span></td>
+        <td style="text-align:center; color:#555;">${benchmark} 議席</td>
+        <td style="text-align:center; font-size:14px; font-weight:bold; color: var(--header-slate);">
+          ${pSeats} 議席 ${!isPassedThreshold ? '<br><span style="font-size:10px; color:#a83232; font-weight:normal;">[1次連合で足切り]</span>' : ''}
+        </td>
+        <td style="text-align:center; font-size:13px;" class="${diffClass}">
+          ${diffStr}
+        </td>
+        <td style="text-align:center;">${category}</td>
+      </tr>
+    `;
+  });
+
+  html += `</tbody></table>`;
+  document.getElementById("final-seats-summary").innerHTML = html;
+
+  latestResultData = {
+    unionSeats: unionSeats,
+    partySeats: partySeats,
+    unionSeatShares: unionSeatShares,
+    pureProportionalSeats: pureSeats,
+    totalSeats: stage1Data.totalSeats,
+    thresholdPercent: thresholdPercent,
+    isStage1: isStage1,
+    winUnionName: winUnionName,
+    loseUnionName: loseUnionName
+  };
+
+  renderChart();
+
+  document.getElementById("final-result-area").style.display = "block";
+}
+
+function getSortedUnionNames(resultData) {
+  if (!resultData || !resultData.unionSeats) return [];
+  const { unionSeats, winUnionName, loseUnionName } = resultData;
+  const unionNames = Object.keys(unionSeats);
+
+  return unionNames.sort((a, b) => {
+    if (a === winUnionName) return -1;
+    if (b === winUnionName) return 1;
+
+    if (loseUnionName) {
+      if (a === loseUnionName) return -1;
+      if (b === loseUnionName) return 1;
+    }
+
+    const seatsA = unionSeats[a] || 0;
+    const seatsB = unionSeats[b] || 0;
+    if (seatsB !== seatsA) {
+      return seatsB - seatsA;
+    }
+    return a.localeCompare(b);
+  });
+}
+
+function switchChartMode(mode) {
+  currentChartMode = mode;
+  ['double', 'union', 'party'].forEach(m => {
+    const btn = document.getElementById(`tab-btn-${m}`);
+    if (btn) {
+      if (m === mode) {
+        btn.classList.add('active');
+      } else {
+        btn.classList.remove('active');
+      }
+    }
+  });
+  renderChart();
+}
+
+function generateSVGString() {
+  if (!latestResultData) return null;
+
+  const { unionSeats, partySeats, totalSeats, thresholdPercent, isStage1 } = latestResultData;
+  const svgWidth = 820;
+  const svgHeight = 540;
+  const cx = 350;
+  const cy = 270;
+
+  const unionNames = getSortedUnionNames(latestResultData);
+  const unionData = unionNames.map(u => unionSeats[u]);
+  const unionColors = unionNames.map((_, i) => academicColors[i % academicColors.length]);
+
+  let partyLabels = [];
+  let partyData = [];
+  let partyColors = [];
+
+  unionNames.forEach((uName, uIndex) => {
+    const partiesInUnion = currentParties.filter(p => {
+      let currentU = isStage1 ? p.union1 : ((p.union2 && p.union2.trim()) ? p.union2.trim() : p.union1);
+      return currentU === uName;
+    }).sort((a, b) => (partySeats[b.name] || 0) - (partySeats[a.name] || 0));
+
+    const baseColor = academicColors[uIndex % academicColors.length];
+    const lightColor = academicLightColors[uIndex % academicLightColors.length];
+
+    partiesInUnion.forEach((p, pIndex) => {
+      partyLabels.push(p.name);
+      partyData.push(partySeats[p.name] || 0);
+      partyColors.push(pIndex % 2 === 0 ? baseColor : lightColor);
+    });
+  });
+
+  let svgPathElements = [];
+  let svgTextElements = [];
+
+  const styleDef = `
+    <style>
+      .svg-bg { fill: #ffffff; }
+      .svg-title { font-family: sans-serif; font-size: 18px; font-weight: bold; fill: #3c4f5e; }
+      .svg-subtitle { font-family: sans-serif; font-size: 12px; fill: #575650; }
+      .svg-chart-text {
+        font-family: sans-serif;
+        font-weight: bold;
+        fill: #ffffff;
+        stroke: #000000;
+        stroke-width: 3.5px;
+        paint-order: stroke fill;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+      .svg-legend-title { font-family: sans-serif; font-size: 13px; font-weight: bold; fill: #3c4f5e; }
+      .svg-legend-sub { font-family: sans-serif; font-size: 11px; font-weight: bold; fill: #575650; }
+      .svg-legend-text { font-family: sans-serif; font-size: 11px; fill: #2c2d2b; }
+      .svg-footer { font-family: sans-serif; font-size: 10px; fill: #a8a396; }
+    </style>
+  `;
+
+  svgPathElements.push(`<rect class="svg-bg" width="100%" height="100%"/>`);
+  svgPathElements.push(`<text x="20" y="35" class="svg-title">決選投票比例代表制 (RPR) 議席分布図</text>`);
+  
+  const modeText = currentChartMode === 'double' ? '2重円グラフ（外:政党 / 内:政党連合）' : (currentChartMode === 'union' ? '政党連合別 議席占有率' : '政党別 議席占有率');
+  svgPathElements.push(`<text x="20" y="58" class="svg-subtitle">表示モード: ${modeText} | 総議席数: ${totalSeats} 議席 | 阻止条項: ${thresholdPercent}%</text>`);
+
+  function polarToCartesian(centerX, centerY, radius, angleInRadians) {
+    return {
+      x: centerX + (radius * Math.cos(angleInRadians)),
+      y: centerY + (radius * Math.sin(angleInRadians))
+    };
+  }
+
+  function describeDoughnutArc(x, y, innerRadius, outerRadius, startAngle, endAngle) {
+    if (endAngle - startAngle >= 2 * Math.PI - 0.0001) {
+      endAngle = startAngle + 2 * Math.PI - 0.0001;
+    }
+    const outerStart = polarToCartesian(x, y, outerRadius, startAngle);
+    const outerEnd = polarToCartesian(x, y, outerRadius, endAngle);
+    const innerEnd = polarToCartesian(x, y, innerRadius, endAngle);
+    const innerStart = polarToCartesian(x, y, innerRadius, startAngle);
+
+    const largeArcFlag = (endAngle - startAngle) > Math.PI ? 1 : 0;
+
+    if (innerRadius <= 0) {
+      return [
+        "M", x, y,
+        "L", outerStart.x, outerStart.y,
+        "A", outerRadius, outerRadius, 0, largeArcFlag, 1, outerEnd.x, outerEnd.y,
+        "Z"
+      ].join(" ");
+    } else {
+      return [
+        "M", outerStart.x, outerStart.y,
+        "A", outerRadius, outerRadius, 0, largeArcFlag, 1, outerEnd.x, outerEnd.y,
+        "L", innerEnd.x, innerEnd.y,
+        "A", innerRadius, innerRadius, 0, largeArcFlag, 0, innerStart.x, innerStart.y,
+        "Z"
+      ].join(" ");
+    }
+  }
+
+  if (currentChartMode === 'double') {
+    let startAngleP = -Math.PI / 2;
+    partyData.forEach((val, idx) => {
+      if (val <= 0) return;
+      const angleP = (val / totalSeats) * 2 * Math.PI;
+      const endAngleP = startAngleP + angleP;
+      const pathD = describeDoughnutArc(cx, cy, 130, 190, startAngleP, endAngleP);
+      svgPathElements.push(`<path d="${pathD}" fill="${partyColors[idx]}" stroke="#ffffff" stroke-width="1.5"/>`);
+
+      if ((val / totalSeats) > 0.03) {
+        const midAngle = startAngleP + angleP / 2;
+        const pos = polarToCartesian(cx, cy, 160, midAngle);
+        const name = partyLabels[idx];
+        svgTextElements.push(`<text x="${pos.x.toFixed(1)}" y="${pos.y.toFixed(1)}" class="svg-chart-text" font-size="11" text-anchor="middle" dominant-baseline="central">${name} (${val}席)</text>`);
+      }
+      startAngleP = endAngleP;
+    });
+
+    let startAngleU = -Math.PI / 2;
+    unionData.forEach((val, idx) => {
+      if (val <= 0) return;
+      const angleU = (val / totalSeats) * 2 * Math.PI;
+      const endAngleU = startAngleU + angleU;
+      const pathD = describeDoughnutArc(cx, cy, 70, 125, startAngleU, endAngleU);
+      svgPathElements.push(`<path d="${pathD}" fill="${unionColors[idx]}" stroke="#ffffff" stroke-width="1.5"/>`);
+
+      if ((val / totalSeats) > 0.04) {
+        const midAngle = startAngleU + angleU / 2;
+        const pos = polarToCartesian(cx, cy, 97.5, midAngle);
+        const name = unionNames[idx];
+        svgTextElements.push(`<text x="${pos.x.toFixed(1)}" y="${pos.y.toFixed(1)}" class="svg-chart-text" font-size="11" text-anchor="middle" dominant-baseline="central">${name} (${val}席)</text>`);
+      }
+      startAngleU = endAngleU;
+    });
+
+  } else if (currentChartMode === 'union') {
+    let startAngle = -Math.PI / 2;
+    unionData.forEach((val, idx) => {
+      if (val <= 0) return;
+      const angle = (val / totalSeats) * 2 * Math.PI;
+      const endAngle = startAngle + angle;
+      const pathD = describeDoughnutArc(cx, cy, 0, 180, startAngle, endAngle);
+      svgPathElements.push(`<path d="${pathD}" fill="${unionColors[idx]}" stroke="#ffffff" stroke-width="2"/>`);
+
+      if ((val / totalSeats) > 0.03) {
+        const midAngle = startAngle + angle / 2;
+        const pos = polarToCartesian(cx, cy, 115, midAngle);
+        const name = unionNames[idx];
+        const pct = ((val / totalSeats) * 100).toFixed(1);
+        svgTextElements.push(`<text x="${pos.x.toFixed(1)}" y="${(pos.y - 6).toFixed(1)}" class="svg-chart-text" font-size="12" text-anchor="middle">${name}</text>`);
+        svgTextElements.push(`<text x="${pos.x.toFixed(1)}" y="${(pos.y + 10).toFixed(1)}" class="svg-chart-text" font-size="11" text-anchor="middle">${val}席 (${pct}%)</text>`);
+      }
+      startAngle = endAngle;
+    });
+
+  } else if (currentChartMode === 'party') {
+    let startAngle = -Math.PI / 2;
+    partyData.forEach((val, idx) => {
+      if (val <= 0) return;
+      const angle = (val / totalSeats) * 2 * Math.PI;
+      const endAngle = startAngle + angle;
+      const pathD = describeDoughnutArc(cx, cy, 0, 180, startAngle, endAngle);
+      svgPathElements.push(`<path d="${pathD}" fill="${partyColors[idx]}" stroke="#ffffff" stroke-width="2"/>`);
+
+      if ((val / totalSeats) > 0.025) {
+        const midAngle = startAngle + angle / 2;
+        const pos = polarToCartesian(cx, cy, 115, midAngle);
+        const name = partyLabels[idx];
+        const pct = ((val / totalSeats) * 100).toFixed(1);
+        svgTextElements.push(`<text x="${pos.x.toFixed(1)}" y="${(pos.y - 6).toFixed(1)}" class="svg-chart-text" font-size="11" text-anchor="middle">${name}</text>`);
+        svgTextElements.push(`<text x="${pos.x.toFixed(1)}" y="${(pos.y + 10).toFixed(1)}" class="svg-chart-text" font-size="10" text-anchor="middle">${val}席 (${pct}%)</text>`);
+      }
+      startAngle = endAngle;
+    });
+  }
+
+  const legendX = 590;
+  let legendY = 100;
+  svgTextElements.push(`<text x="${legendX}" y="${legendY}" class="svg-legend-title">凡例</text>`);
+  legendY += 15;
+
+  if (currentChartMode === 'party' || currentChartMode === 'double') {
+    svgTextElements.push(`<text x="${legendX}" y="${legendY}" class="svg-legend-sub">■ 政党</text>`);
+    legendY += 12;
+    partyLabels.forEach((name, i) => {
+      if (partyData[i] <= 0) return;
+      svgPathElements.push(`<rect x="${legendX}" y="${legendY}" width="12" height="12" fill="${partyColors[i]}" rx="2"/>`);
+      svgTextElements.push(`<text x="${legendX + 18}" y="${legendY + 10}" class="svg-legend-text">${name}: ${partyData[i]}席</text>`);
+      legendY += 18;
+    });
+    legendY += 10;
+  }
+
+  if (currentChartMode === 'union' || currentChartMode === 'double') {
+    svgTextElements.push(`<text x="${legendX}" y="${legendY}" class="svg-legend-sub">■ 政党連合</text>`);
+    legendY += 12;
+    unionNames.forEach((name, i) => {
+      if (unionData[i] <= 0) return;
+      svgPathElements.push(`<rect x="${legendX}" y="${legendY}" width="12" height="12" fill="${unionColors[i]}" rx="2"/>`);
+      svgTextElements.push(`<text x="${legendX + 18}" y="${legendY + 10}" class="svg-legend-text">[連合] ${name}: ${unionData[i]}席</text>`);
+      legendY += 18;
+    });
+  }
+
+  svgTextElements.push(`<text x="${svgWidth - 15}" y="${svgHeight - 15}" class="svg-footer" text-anchor="end">決選投票比例代表制シミュレーター - アルゴン研究所 (Argon Institute)</text>`);
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${svgWidth} ${svgHeight}" width="${svgWidth}" height="${svgHeight}">\n` +
+         styleDef + '\n' +
+         svgPathElements.join('\n') + '\n' +
+         '<!-- 最上部テキストレイヤー -->' + '\n' +
+         svgTextElements.join('\n') + '\n' +
+         `</svg>`;
+}
+
+function renderChart() {
+  if (!latestResultData) return;
+
+  const canvas = document.getElementById('seatsChart');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+
+  if (chartInstance) {
+    chartInstance.destroy();
+  }
+
+  if (typeof Chart === 'undefined') return;
+
+  if (typeof ChartDataLabels !== 'undefined') {
+    Chart.register(ChartDataLabels);
+  }
+
+  const { unionSeats, partySeats, totalSeats, isStage1 } = latestResultData;
+
+  const unionNames = getSortedUnionNames(latestResultData);
+  const unionData = unionNames.map(u => unionSeats[u]);
+  const unionColors = unionNames.map((_, i) => academicColors[i % academicColors.length]);
+
+  let partyLabels = [];
+  let partyData = [];
+  let partyColors = [];
+
+  unionNames.forEach((uName, uIndex) => {
+    const partiesInUnion = currentParties.filter(p => {
+      let currentU = isStage1 ? p.union1 : ((p.union2 && p.union2.trim()) ? p.union2.trim() : p.union1);
+      return currentU === uName;
+    }).sort((a, b) => (partySeats[b.name] || 0) - (partySeats[a.name] || 0));
+
+    const baseColor = academicColors[uIndex % academicColors.length];
+    const lightColor = academicLightColors[uIndex % academicLightColors.length];
+
+    partiesInUnion.forEach((p, pIndex) => {
+      partyLabels.push(`${p.name}`);
+      partyData.push(partySeats[p.name] || 0);
+      partyColors.push(pIndex % 2 === 0 ? baseColor : lightColor);
+    });
+  });
+
+  const commonPlugins = {
+    legend: {
+      position: 'right',
+      labels: {
+        font: { size: 11, family: 'sans-serif' },
+        boxWidth: 14,
+        padding: 12,
+        usePointStyle: true
+      }
+    },
+    tooltip: {
+      backgroundColor: 'rgba(30, 35, 42, 0.92)',
+      titleFont: { size: 12, weight: 'bold' },
+      bodyFont: { size: 12 },
+      padding: 10,
+      borderColor: '#a8a396',
+      borderWidth: 1,
+      callbacks: {
+        title: function(tooltipItems) {
+          if (!tooltipItems.length) return '';
+          const item = tooltipItems[0];
+          return item.datasetIndex === 0 ? '【政党別 獲得議席】' : '【政党連合別 獲得議席】';
+        },
+        label: function(context) {
+          let val = context.raw || 0;
+          let pct = ((val / totalSeats) * 100).toFixed(1);
+          if (context.datasetIndex === 0) {
+            let pLabel = partyLabels[context.dataIndex] || '';
+            return ` ${pLabel}: ${val}議席 (${pct}%)`;
+          } else {
+            let uName = unionNames[context.dataIndex] || '';
+            return ` 連合 [${uName}]: ${val}議席 (${pct}%)`;
+          }
+        }
+      }
+    },
+    datalabels: {
+      color: '#ffffff',
+      font: { weight: 'bold', size: 11 },
+      formatter: (value, ctx) => {
+        if (!value || value === 0) return '';
+        let pct = (value / totalSeats) * 100;
+        if (pct < 3) return '';
+        
+        let label = '';
+        if (ctx.datasetIndex === 0) {
+          label = partyLabels[ctx.dataIndex] || '';
+        } else {
+          label = unionNames[ctx.dataIndex] || '';
+        }
+        return `${label}\n${value}席`;
+      },
+      textAlign: 'center',
+      textStrokeColor: 'rgba(0, 0, 0, 0.65)',
+      textStrokeWidth: 2
+    }
+  };
+
+  if (currentChartMode === 'double') {
+    chartInstance = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: partyLabels,
+        datasets: [
+          {
+            label: '政党別獲得議席（外輪）',
+            data: partyData,
+            backgroundColor: partyColors,
+            borderColor: '#ffffff',
+            borderWidth: 2,
+            hoverOffset: 6,
+            weight: 1.2
+          },
+          {
+            label: '政党連合別獲得議席（内輪）',
+            data: unionData,
+            backgroundColor: unionColors,
+            borderColor: '#ffffff',
+            borderWidth: 2,
+            hoverOffset: 6,
+            weight: 0.9
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '38%',
+        plugins: commonPlugins
+      }
+    });
+  } else if (currentChartMode === 'union') {
+    let unionPlugins = JSON.parse(JSON.stringify(commonPlugins));
+    unionPlugins.datalabels.formatter = (value, ctx) => {
+      if (!value || (value / totalSeats) * 100 < 3) return '';
+      return `${unionNames[ctx.dataIndex]}\n${value}席 (${((value/totalSeats)*100).toFixed(1)}%)`;
+    };
+
+    chartInstance = new Chart(ctx, {
+      type: 'pie',
+      data: {
+        labels: unionNames,
+        datasets: [{
+          data: unionData,
+          backgroundColor: unionColors,
+          borderColor: '#ffffff',
+          borderWidth: 2,
+          hoverOffset: 8
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: unionPlugins
+      }
+    });
+  } else if (currentChartMode === 'party') {
+    let partyPlugins = JSON.parse(JSON.stringify(commonPlugins));
+    partyPlugins.datalabels.formatter = (value, ctx) => {
+      if (!value || (value / totalSeats) * 100 < 2.5) return '';
+      return `${partyLabels[ctx.dataIndex]}\n${value}席`;
+    };
+
+    chartInstance = new Chart(ctx, {
+      type: 'pie',
+      data: {
+        labels: partyLabels,
+        datasets: [{
+          data: partyData,
+          backgroundColor: partyColors,
+          borderColor: '#ffffff',
+          borderWidth: 2,
+          hoverOffset: 8
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: partyPlugins
+      }
+    });
+  }
+}
+
+function downloadChartImage() {
+  const canvas = document.getElementById('seatsChart');
+  if (!canvas) {
+    console.warn("グラフが表示されていません。");
+    return;
+  }
+  
+  const imageURI = canvas.toDataURL('image/png');
+  const link = document.createElement('a');
+  link.download = `RPR_Simulation_Graph_${new Date().toISOString().slice(0,10)}.png`;
+  link.href = imageURI;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
+function downloadSVGImage() {
+  const svgStr = generateSVGString();
+  if (!svgStr) {
+    console.warn("グラフデータが存在しません。計算を実行してください。");
+    return;
+  }
+  const blob = new Blob([svgStr], { type: 'image/svg+xml;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.setAttribute('href', url);
+  link.setAttribute('download', `RPR_Simulation_Graph_${new Date().toISOString().slice(0,10)}.svg`);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
+function downloadCSVData() {
+  if (!latestResultData || !stage1Data) {
+    console.warn("シミュレーション結果がありません。計算を実行してください。");
+    return;
+  }
+
+  const { unionSeats, partySeats, pureProportionalSeats, isStage1 } = latestResultData;
+
+  let csvRows = [];
+  csvRows.push(["政党名", "1次所属連合", "最終所属連合", "連合獲得議席", "1次得票数", "純粋比例基準議席", "本制度獲得議席", "プレミアム効果"]);
+
+  currentParties.forEach(p => {
+    let uName = isStage1 ? p.union1 : ((p.union2 && p.union2.trim()) ? p.union2.trim() : p.union1);
+    let pSeats = partySeats[p.name] || 0;
+    let uSeats = unionSeats[uName] || 0;
+    let benchmark = pureProportionalSeats[p.name] || 0;
+    let diff = pSeats - benchmark;
+
+    csvRows.push([
+      `"${p.name}"`,
+      `"${p.union1}"`,
+      `"${uName}"`,
+      uSeats,
+      p.votes,
+      benchmark,
+      pSeats,
+      diff >= 0 ? `+${diff}` : `${diff}`
+    ]);
+  });
+
+  let csvContent = "\uFEFF" + csvRows.map(e => e.join(",")).join("\n");
+  let blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  let url = URL.createObjectURL(blob);
+  
+  let link = document.createElement('a');
+  link.setAttribute('href', url);
+  link.setAttribute('download', `RPR_Simulation_Results_${new Date().toISOString().slice(0,10)}.csv`);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
+function escapeHtml(str) {
+  if (str === null || str === undefined) return "";
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+</script>
+</body>
+</html>
